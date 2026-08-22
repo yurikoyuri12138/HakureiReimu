@@ -172,6 +172,20 @@ export default function App() {
         onToggleAuto={toggleAutoTheme}
       />
 
+      {/* 布局切换悬浮按钮（固定在右侧，仅 PC 显示） */}
+      {isPc && (
+        <button
+          type="button"
+          className="layout-fab"
+          title={timeline ? '切换到作品墙' : '切换到时辰轴'}
+          aria-pressed={timeline}
+          onClick={() => setTimeline((v) => !v)}
+        >
+          <span className="layout-fab-ico">{timeline ? '⏳' : '🧱'}</span>
+          <span className="layout-fab-text">{timeline ? '时辰轴' : '作品墙'}</span>
+        </button>
+      )}
+
       {/* 背景装饰（动态效果关闭时不渲染） */}
       {fx && (
         <div className="deco" aria-hidden="true">
@@ -225,9 +239,6 @@ export default function App() {
             allTypes={allTypes}
             shown={filteredItems.length}
             total={items.length}
-            timeline={timeline}
-            onToggleLayout={() => setTimeline((v) => !v)}
-            layoutVisible={isPc}
           />
 
           <Divider style={{ margin: '2px auto 24px', maxWidth: 1360 }} />

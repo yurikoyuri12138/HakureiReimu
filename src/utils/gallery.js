@@ -106,11 +106,11 @@ export function groupByShichen(items, info) {
     return list.length === 1 || first === last ? first : `${first}–${last}`
   }
   const out = []
-  if (prev.length) out.push({ key: '昨日', char: '昨', label: '昨日', range: span(prev), items: prev.map((x) => x.item) })
+  if (prev.length) out.push({ key: '昨日', char: '昨', label: '昨日', date: '8月9日', range: span(prev), items: prev.map((x) => x.item) })
   buckets.forEach((list, idx) => {
     if (list.length) out.push({ key: BRANCHES[idx], char: BRANCHES[idx], label: `${BRANCHES[idx]}时`, range: branchRange(idx), items: list.sort(byTime).map((x) => x.item) })
   })
-  if (next.length) out.push({ key: '明日', char: '明', label: '明日', range: span(next), items: next.map((x) => x.item) })
+  if (next.length) out.push({ key: '明日', char: '明', label: '明日', date: '8月10日', range: span(next), items: next.map((x) => x.item) })
   if (other.length) out.push({ key: '其他', char: '时', label: '其他', items: other.map((x) => x.item) })
   return out
 }
