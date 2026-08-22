@@ -460,7 +460,7 @@ a:hover { color: var(--accent-strong); text-decoration: underline; }
   margin-bottom: 30px;
   display: flex; flex-direction: column;
   justify-content: center;
-  padding-left: 10px;
+  align-items: center;
 }
 /* 每段区间首处的分隔刻度线 */
 .tl-mark {
@@ -485,7 +485,15 @@ a:hover { color: var(--accent-strong); text-decoration: underline; }
   text-shadow: 0 4px 18px var(--tl-glow);
   user-select: none;
 }
-/* 地支下方标注对应时间段 */
+/* 深色主题：大字霓虹发光效果 */
+[data-theme='dark'] .tl-char {
+  text-shadow:
+    0 0 8px rgba(255, 160, 182, 0.9),
+    0 0 22px rgba(255, 160, 182, 0.6),
+    0 0 48px rgba(255, 160, 182, 0.35),
+    0 0 90px rgba(255, 160, 182, 0.2);
+}
+/* 地支下方标注对应时间段（与大字水平正中对齐） */
 .tl-time {
   margin-top: 10px;
   font-size: 15px; font-weight: 600; letter-spacing: 1px;

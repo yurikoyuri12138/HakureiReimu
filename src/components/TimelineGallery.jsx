@@ -2,11 +2,23 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { groupByShichen } from '../utils/gallery.js'
 import WorkCard from './WorkCard.jsx'
 
-// 单行横向滚动行：未悬停时自动滚动；悬停时暂停自动滚动，滚轮可操控该行横向滚动
+// 单行横向滚动行：未悬停且显示在屏幕上时自动滚动；悬停时暂停自动滚动，滚轮可操控该行横向滚动
 function TlRow({ g, info, texts, paused, onOpen }) {
   const sectionRef = useRef(null)
   const scrollRef = useRef(null)
   const [hover, setHover] = useState(false)
+  const [visible, setVisible] = useState(false)
+
+  // 懒加载：仅当该时段行进入屏幕时才自动滚动
+  useEffect(() => {
+    const section = sectionRef.current
+    if (!section) return
+    const io = new IntersectionObserver((entries) => {
+      setVisible(entries[0].isIntersecting)
+    }, { threshold: 0.15 })
+    io.observe(section)
+    return () => io.disconnect()
+  }, [])
 
   // 滚轮操控：仅在该行可滚动且方向未到尽头时接管，其余情况放行页面滚动
   useEffect(() => {
@@ -26,10 +38,10 @@ function TlRow({ g, info, texts, paused, onOpen }) {
     return () => section.removeEventListener('wheel', onWheel)
   }, [])
 
-  // 自动滚动：滚到末尾停留片刻后回到起点循环
+  // 自动滚动（懒加载：仅屏幕上可见的行滚动）：滚到末尾停留片刻后回到起点循环
   useEffect(() => {
     const scroller = scrollRef.current
-    if (!scroller || paused || hover) return
+    if (!scroller || paused || hover || !visible) return
     if (scroller.scrollWidth <= scroller.clientWidth) return
     let raf = 0
     let hold = 0
@@ -49,7 +61,7 @@ function TlRow({ g, info, texts, paused, onOpen }) {
     }
     raf = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(raf)
-  }, [hover, paused])
+  }, [hover, paused, visible])
 
   return (
     <section
