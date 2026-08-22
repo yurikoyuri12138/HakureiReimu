@@ -361,7 +361,7 @@ a:hover { color: var(--accent-strong); text-decoration: underline; }
 .ph-sakura { animation: spinSakura 4.2s linear infinite; }
 .ph-star {
   animation: starStep 4.8s ease-in-out infinite;
-  filter: drop-shadow(0 0 8px rgba(255, 214, 165, 0.8));
+  filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.6));
 }
 /* 樱花：匀速旋转 */
 @keyframes spinSakura {
