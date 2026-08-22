@@ -7,6 +7,7 @@ import WarnBanner from './components/WarnBanner.jsx'
 import Toolbar from './components/Toolbar.jsx'
 import PromoSection from './components/PromoSection.jsx'
 import Gallery from './components/Gallery.jsx'
+import TimelineGallery from './components/TimelineGallery.jsx'
 import DetailOverlay from './components/DetailOverlay.jsx'
 import ThemeSwitch from './components/ThemeSwitch.jsx'
 import Footer from './components/Footer.jsx'
@@ -47,6 +48,22 @@ export default function App() {
   const [fx, setFx] = useState(() => {
     try { return localStorage.getItem('lm-fx') === 'on' } catch { return false }
   })
+  // 布局模式：墙（默认）/ 时辰轴（仅 PC）
+  const [timeline, setTimeline] = useState(() => {
+    try { return localStorage.getItem('lm-layout') === 'timeline' } catch { return false }
+  })
+  // 是否 PC 宽屏（时辰轴布局仅在 ≥901px 生效）
+  const [isPc, setIsPc] = useState(false)
+
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 901px)')
+    const fn = () => setIsPc(mq.matches)
+    fn()
+    mq.addEventListener('change', fn)
+    return () => mq.removeEventListener('change', fn)
+  }, [])
+
+  const showTimeline = timeline && isPc
 
   // 主题属性挂到 <html>，确保 body 与全局背景生效；并持久化选择
   useEffect(() => {
@@ -58,6 +75,11 @@ export default function App() {
   useEffect(() => {
     try { localStorage.setItem('lm-fx', fx ? 'on' : 'off') } catch { /* ignore */ }
   }, [fx])
+
+  // 布局选择持久化
+  useEffect(() => {
+    try { localStorage.setItem('lm-layout', timeline ? 'timeline' : 'wall') } catch { /* ignore */ }
+  }, [timeline])
 
   // 隐藏开关：切换自动主题模式；开启时立即按当前系统时间应用主题
   const toggleAutoTheme = () => {
@@ -203,6 +225,9 @@ export default function App() {
             allTypes={allTypes}
             shown={filteredItems.length}
             total={items.length}
+            timeline={timeline}
+            onToggleLayout={() => setTimeline((v) => !v)}
+            layoutVisible={isPc}
           />
 
           <Divider style={{ margin: '2px auto 24px', maxWidth: 1360 }} />
@@ -211,7 +236,13 @@ export default function App() {
 
           <Divider style={{ margin: '4px auto 0', maxWidth: 1360 }} />
 
-          <Gallery sections={sections} info={INFO} texts={TEXTS} paused={!!active} onOpen={setActive} />
+          {showTimeline
+            ? (
+              <TimelineGallery items={filteredItems} info={INFO} texts={TEXTS} paused={!!active} onOpen={setActive} />
+            )
+            : (
+              <Gallery sections={sections} info={INFO} texts={TEXTS} paused={!!active} onOpen={setActive} />
+            )}
 
           {active && (
             <DetailOverlay item={active} info={INFO} texts={TEXTS} notes={NOTES} onClose={() => setActive(null)} />

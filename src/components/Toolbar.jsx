@@ -1,4 +1,4 @@
-export default function Toolbar({ search, onSearch, typeFilter, onTypeFilter, allTypes, shown, total }) {
+export default function Toolbar({ search, onSearch, typeFilter, onTypeFilter, allTypes, shown, total, timeline, onToggleLayout, layoutVisible }) {
   return (
     <div className="toolbar">
       <input
@@ -13,6 +13,18 @@ export default function Toolbar({ search, onSearch, typeFilter, onTypeFilter, al
         ))}
       </select>
       <span className="result-count">共 {shown} / {total} 棒</span>
+      {layoutVisible && (
+        <button
+          type="button"
+          className={'layout-toggle' + (timeline ? ' on' : '')}
+          title={timeline ? '切换到墙式布局' : '切换到时辰轴布局'}
+          aria-pressed={timeline}
+          onClick={onToggleLayout}
+        >
+          <span className="ts-btn-ico">{timeline ? '⏳' : '🧱'}</span>
+          <span className="ts-btn-label">{timeline ? '时辰轴' : '墙'}</span>
+        </button>
+      )}
     </div>
   )
 }
