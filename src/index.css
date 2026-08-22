@@ -21,6 +21,8 @@ html { scroll-behavior: smooth; color-scheme: light; }
   --accent: #d0436b;
   --accent-strong: #e0485e;
   --gold: #f59e0b;
+  --tl-char: #9e2b4f;
+  --tl-glow: rgba(158, 43, 79, 0.35);
   --text: #3d3440;
   --muted: #8a7f8f;
   --muted2: #a08fa6;
@@ -53,6 +55,8 @@ html { scroll-behavior: smooth; color-scheme: light; }
   --accent: #ff8fa0;
   --accent-strong: #ff6b81;
   --gold: #f5b75e;
+  --tl-char: #ffa0b6;
+  --tl-glow: rgba(255, 160, 182, 0.4);
   --text: #e8e3f5;
   --muted: #8f88ad;
   --muted2: #7c7598;
@@ -433,19 +437,28 @@ a:hover { color: var(--accent-strong); text-decoration: underline; }
   opacity: 0.75;
   border-radius: 2px;
 }
-/* 每个时辰的分隔刻度线 */
+/* 每段区间的首处分隔刻度线 */
 .tl-mark {
   position: absolute; left: 0; right: 0; height: 1px;
   background: var(--line);
   opacity: 0.55;
 }
-/* 最左侧的地支（子丑寅卯…亥），小篆体 */
+/* 每段区间首处（时间轴上的圆圈） */
+.tl-dot {
+  position: absolute; right: -7px;
+  width: 14px; height: 14px; border-radius: 50%;
+  background: var(--card-bg);
+  border: 2.5px solid var(--accent-strong);
+  box-shadow: 0 0 10px var(--tl-glow);
+  transform: translateY(-50%);
+}
+/* 最左侧的地支（子丑寅卯…亥），小篆体，置于区间正中 */
 .tl-char {
-  position: absolute; left: 8px;
+  position: absolute; left: 10px;
   font-family: 'FZXiaoZhuanTi', 'FangSong', 'STFangsong', serif;
-  font-size: 34px; line-height: 1;
-  color: var(--accent);
-  text-shadow: 0 2px 14px rgba(244, 114, 182, 0.3);
+  font-size: 102px; line-height: 1;
+  color: var(--tl-char);
+  text-shadow: 0 4px 18px var(--tl-glow);
   transform: translateY(-50%);
   user-select: none;
 }
@@ -466,12 +479,54 @@ a:hover { color: var(--accent-strong); text-decoration: underline; }
 .tl-count { color: var(--muted2); font-size: 13px; margin-left: auto; white-space: nowrap; }
 .tl-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 16px;
 }
-@media (max-width: 1200px) { .tl-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 1100px) { .tl-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 900px) {
   .tl, .tl-group { display: none; }
+}
+
+/* ---------- 时辰轴缩略图块（每行最多三个） ---------- */
+.tl-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+  overflow: hidden;
+  cursor: pointer;
+  display: flex; flex-direction: column;
+  box-shadow: var(--shadow);
+  animation: fadeUp 0.55s ease backwards;
+  transition: transform 0.3s cubic-bezier(0.22, 0.8, 0.3, 1), box-shadow 0.3s, border-color 0.3s;
+}
+.tl-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-hover);
+  border-color: var(--accent);
+}
+.tl-cover {
+  position: relative; aspect-ratio: 4 / 3;
+  background: linear-gradient(160deg, #f7f0f4, #efe8f4);
+  overflow: hidden;
+}
+[data-theme='dark'] .tl-cover { background: linear-gradient(160deg, #221c3c, #181230); }
+.tl-card:hover .car-img.on { transform: scale(1.05); }
+/* 多作品数量角标 */
+.tl-num {
+  position: absolute; top: 8px; right: 8px; z-index: 2;
+  font-size: 12px; border-radius: 999px; padding: 2px 9px;
+  background: rgba(20, 10, 25, 0.55); color: #fff;
+  backdrop-filter: blur(4px);
+}
+.tl-cardbar {
+  padding: 9px 12px 10px;
+  display: flex; flex-direction: column; gap: 2px;
+  border-top: 1px solid var(--line);
+}
+.tl-name { font-size: 14px; font-weight: 700; color: var(--text); letter-spacing: 0.5px; }
+.tl-credit {
+  font-size: 12px; color: var(--muted2);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 
 /* ---------- 页尾 ---------- */
