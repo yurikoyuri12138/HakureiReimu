@@ -2,12 +2,17 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { groupByShichen } from '../utils/gallery.js'
 import WorkCard from './WorkCard.jsx'
 
-// 单行横向滚动行：未悬停且显示在屏幕上时自动滚动；悬停时暂停自动滚动，滚轮可操控该行横向滚动
+// 单行横向滚动行：内容复制两份实现无缝循环；未悬停且显示在屏幕上时自动滚动，
+// 悬停时暂停自动滚动，滚轮可操控该行双向无缝滚动
 function TlRow({ g, info, texts, paused, onOpen }) {
   const sectionRef = useRef(null)
   const scrollRef = useRef(null)
   const [hover, setHover] = useState(false)
   const [visible, setVisible] = useState(false)
+  // 一份内容的宽度（卡片 208px + 间距 14px），循环回绕的周期
+  const period = g.items.length * (208 + 14)
+  // 行可见时暂停卡片轮播，避免滚动过程中交叉淡入造成卡顿
+  const cardPaused = paused || visible
 
   // 懒加载：仅当该时段行进入屏幕时才自动滚动
   useEffect(() => {
@@ -20,48 +25,48 @@ function TlRow({ g, info, texts, paused, onOpen }) {
     return () => io.disconnect()
   }, [])
 
-  // 滚轮操控：仅在该行可滚动且方向未到尽头时接管，其余情况放行页面滚动
+  // 滚轮操控：无缝双向回绕；不可滚动（单份内容可完整显示）时放行页面滚动
   useEffect(() => {
     const section = sectionRef.current
     const scroller = scrollRef.current
     if (!section || !scroller) return
     const onWheel = (e) => {
-      if (scroller.scrollWidth <= scroller.clientWidth) return
-      const atStart = scroller.scrollLeft <= 0
-      const atEnd = scroller.scrollLeft >= scroller.scrollWidth - scroller.clientWidth - 1
+      if (period <= scroller.clientWidth + 4) return
       const delta = e.deltaY || e.deltaX
-      if ((delta > 0 && atEnd) || (delta < 0 && atStart)) return
+      if (!delta) return
       e.preventDefault()
-      scroller.scrollLeft += delta
+      let target = scroller.scrollLeft + delta
+      if (target >= period) target -= period
+      if (target < 0) target += period
+      scroller.scrollLeft = target
     }
     section.addEventListener('wheel', onWheel, { passive: false })
     return () => section.removeEventListener('wheel', onWheel)
-  }, [])
+  }, [period])
 
-  // 自动滚动（懒加载：仅屏幕上可见的行滚动）：滚到末尾停留片刻后回到起点循环
+  // 自动滚动（懒加载：仅屏幕上可见的行滚动）：整数像素步进，到周期点无缝回绕
   useEffect(() => {
     const scroller = scrollRef.current
     if (!scroller || paused || hover || !visible) return
-    if (scroller.scrollWidth <= scroller.clientWidth) return
+    if (period <= scroller.clientWidth + 4) return
     let raf = 0
-    let hold = 0
+    let pos = scroller.scrollLeft
     let last = performance.now()
     const tick = (now) => {
       raf = requestAnimationFrame(tick)
       const dt = Math.min(now - last, 100)
       last = now
-      const max = scroller.scrollWidth - scroller.clientWidth
-      if (scroller.scrollLeft >= max - 0.5) {
-        hold += dt
-        if (hold >= 1600) { scroller.scrollLeft = 0; hold = 0 }
-        return
-      }
-      hold = 0
-      scroller.scrollLeft = Math.min(scroller.scrollLeft + 0.06 * dt, max)
+      pos += 0.06 * dt
+      if (pos >= period) pos -= period
+      scroller.scrollLeft = Math.round(pos)
     }
     raf = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(raf)
-  }, [hover, paused, visible])
+  }, [hover, paused, visible, period])
+
+  const cards = (pass) => g.items.map((item, idx) => (
+    <WorkCard key={pass + '-' + item.infoId} index={idx} item={item} info={info} texts={texts} paused={cardPaused} onOpen={onOpen} />
+  ))
 
   return (
     <section
@@ -79,9 +84,8 @@ function TlRow({ g, info, texts, paused, onOpen }) {
         <span className="tl-count">{g.items.length} 棒</span>
       </header>
       <div ref={scrollRef} className="tl-scroll">
-        {g.items.map((item, idx) => (
-          <WorkCard key={item.infoId} index={idx} item={item} info={info} texts={texts} paused={paused} onOpen={onOpen} />
-        ))}
+        {cards(0)}
+        {cards(1)}
       </div>
     </section>
   )
