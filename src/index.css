@@ -341,6 +341,54 @@ a:hover { color: var(--accent-strong); text-decoration: underline; }
   overflow: hidden;
 }
 [data-theme='dark'] .gcover { background: linear-gradient(160deg, #221c3c, #181230); }
+/* 轮播插槽：图片与加载占位的定位容器 */
+.car-slot { position: absolute; inset: 0; }
+/* ---------- 图片加载占位（浅色=五瓣缺刻樱花匀速旋转，深色=六芒星步进旋转） ---------- */
+.img-ph {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--media-bg);
+  overflow: hidden;
+  pointer-events: none;
+}
+.img-ph svg {
+  width: 54px; height: 54px;
+  transform-box: fill-box; transform-origin: center;
+}
+.ph-star { display: none; }
+[data-theme='dark'] .ph-sakura { display: none; }
+[data-theme='dark'] .ph-star { display: block; }
+.ph-sakura { animation: spinSakura 4.2s linear infinite; }
+.ph-star {
+  animation: starStep 4.8s ease-in-out infinite;
+  filter: drop-shadow(0 0 8px rgba(255, 214, 165, 0.8));
+}
+/* 樱花：匀速旋转 */
+@keyframes spinSakura {
+  to { transform: rotate(360deg); }
+}
+/* 六芒星：每次旋转一个角（60°）后停顿，再重复 */
+@keyframes starStep {
+  0% { transform: rotate(0deg); }
+  8.33% { transform: rotate(60deg); }
+  16.67% { transform: rotate(60deg); }
+  25% { transform: rotate(120deg); }
+  33.33% { transform: rotate(120deg); }
+  41.67% { transform: rotate(180deg); }
+  50% { transform: rotate(180deg); }
+  58.33% { transform: rotate(240deg); }
+  66.67% { transform: rotate(240deg); }
+  75% { transform: rotate(300deg); }
+  83.33% { transform: rotate(300deg); }
+  91.67% { transform: rotate(360deg); }
+  100% { transform: rotate(360deg); }
+}
+/* 详情大图占位：更大尺寸 */
+.detail-media .img-ph svg { width: 84px; height: 84px; }
+/* 宣传图占位容器（图片未加载时占据版位） */
+.promo-cover { position: relative; }
+.promo-ph { position: relative; aspect-ratio: 16 / 9; }
+.promo-ph .img-ph { position: absolute; inset: 0; }
 .car-img {
   position: absolute; inset: 0; width: 100%; height: 100%;
   object-fit: cover; opacity: 0; transition: opacity 0.55s ease, transform 0.5s ease;

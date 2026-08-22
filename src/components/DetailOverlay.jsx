@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { assetUrl, itemMeta, textOf, workUrl } from '../utils/gallery.js'
 import { splitBlocks } from '../utils/paragraphs.js'
+import ImgPh from './ImgPh.jsx'
 
 // 详情浮层：同棒多作品翻页 / 信息栏 / 进入与关闭动画 / 键盘控制 / 视频跳转
 export default function DetailOverlay({ item, info, texts, notes, onClose }) {
@@ -9,6 +10,13 @@ export default function DetailOverlay({ item, info, texts, notes, onClose }) {
   const [closing, setClosing] = useState(false)
   // 移动端：底部信息栏展开态（点下侧拉出，点上侧图恢复）
   const [infoOpen, setInfoOpen] = useState(false)
+  // 当前大图是否已完整加载（加载期间显示主题占位）
+  const [imgLoaded, setImgLoaded] = useState(false)
+
+  // 切换作品时重置加载状态
+  useEffect(() => {
+    setImgLoaded(false)
+  }, [workIdx])
 
   const works = item.works
   const work = works[Math.min(workIdx, works.length - 1)] || null
@@ -66,7 +74,16 @@ export default function DetailOverlay({ item, info, texts, notes, onClose }) {
             <button className="media-btn mb-prev" onClick={(e) => { e.stopPropagation(); move(-1) }}>‹</button>
           )}
           {work && work.file ? (
-            <img key={work.name} className={imgCls} src={assetUrl(work.file)} alt={work.name} />
+            <>
+              {!imgLoaded && <ImgPh />}
+              <img
+                key={work.name}
+                className={imgCls}
+                src={assetUrl(work.file)}
+                alt={work.name}
+                onLoad={() => setImgLoaded(true)}
+              />
+            </>
           ) : (
             <div key={'t' + (work ? work.name : '')} className="detail-text work-item">
               {blocks.map((b, i) =>
