@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { lazy, Suspense, useEffect, useMemo, useState } from 'react'
 import { Divider } from 'antd'
 import { INFO, WORKS, TEXTS, NOTES } from './data/index.js'
 import { SECTION_ORDER, itemMeta, sectionOf } from './utils/gallery.js'
@@ -7,11 +7,13 @@ import WarnBanner from './components/WarnBanner.jsx'
 import Toolbar from './components/Toolbar.jsx'
 import PromoSection from './components/PromoSection.jsx'
 import Gallery from './components/Gallery.jsx'
-import TimelineGallery from './components/TimelineGallery.jsx'
 import DetailOverlay from './components/DetailOverlay.jsx'
 import ThemeSwitch from './components/ThemeSwitch.jsx'
 import Footer from './components/Footer.jsx'
 import BackToTop from './components/BackToTop.jsx'
+
+// 时辰轴布局懒加载：仅 PC 且切换到时辰轴时才拉取该模块，移动端不加载其资源
+const TimelineGallery = lazy(() => import('./components/TimelineGallery.jsx'))
 
 // 固定种子随机数（保证装饰元素每次渲染一致，不闪烁）
 function mulberry32(seed) {
@@ -48,17 +50,21 @@ export default function App() {
   const [fx, setFx] = useState(() => {
     try { return localStorage.getItem('lm-fx') === 'on' } catch { return false }
   })
-  // 布局模式：墙（默认）/ 时辰轴（仅 PC）
+  // 布局模式：墙（默认）/ 时辰轴（仅 PC）。移动端初始一律为作品墙，不读历史偏好
   const [timeline, setTimeline] = useState(() => {
-    try { return localStorage.getItem('lm-layout') === 'timeline' } catch { return false }
+    try {
+      if (!window.matchMedia('(min-width: 901px)').matches) return false
+      return localStorage.getItem('lm-layout') === 'timeline'
+    } catch { return false }
   })
   // 是否 PC 宽屏（时辰轴布局仅在 ≥901px 生效）
-  const [isPc, setIsPc] = useState(false)
+  const [isPc, setIsPc] = useState(() => {
+    try { return window.matchMedia('(min-width: 901px)').matches } catch { return false }
+  })
 
   useEffect(() => {
     const mq = window.matchMedia('(min-width: 901px)')
     const fn = () => setIsPc(mq.matches)
-    fn()
     mq.addEventListener('change', fn)
     return () => mq.removeEventListener('change', fn)
   }, [])
@@ -76,10 +82,11 @@ export default function App() {
     try { localStorage.setItem('lm-fx', fx ? 'on' : 'off') } catch { /* ignore */ }
   }, [fx])
 
-  // 布局选择持久化
+  // 布局选择持久化（仅 PC 生效，移动端不覆盖已保存的 PC 偏好）
   useEffect(() => {
+    if (!isPc) return
     try { localStorage.setItem('lm-layout', timeline ? 'timeline' : 'wall') } catch { /* ignore */ }
-  }, [timeline])
+  }, [timeline, isPc])
 
   // 隐藏开关：切换自动主题模式；开启时立即按当前系统时间应用主题
   const toggleAutoTheme = () => {
@@ -249,7 +256,9 @@ export default function App() {
 
           {showTimeline
             ? (
-              <TimelineGallery items={filteredItems} info={INFO} texts={TEXTS} paused={!!active} onOpen={setActive} />
+              <Suspense fallback={null}>
+                <TimelineGallery items={filteredItems} info={INFO} texts={TEXTS} paused={!!active} onOpen={setActive} />
+              </Suspense>
             )
             : (
               <Gallery sections={sections} info={INFO} texts={TEXTS} paused={!!active} onOpen={setActive} />
