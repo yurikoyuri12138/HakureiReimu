@@ -79,6 +79,11 @@ export function branchRange(idx) {
   return `${pad(idx * 2)}:00–${pad(idx * 2 + 2)}:00`
 }
 
+// 时刻 → "8:09" 形式
+export function fmtTime(mins) {
+  return `${Math.floor(mins / 60)}:${String(mins % 60).padStart(2, '0')}`
+}
+
 // 按时辰分组：昨日(预热) → 子丑寅…亥 → 明日(替补) → 其他（组内按时刻排序）
 export function groupByShichen(items, info) {
   const prev = []
@@ -94,12 +99,18 @@ export function groupByShichen(items, info) {
     buckets[Math.min(Math.floor(t.mins / 120), 11)].push(rec)
   })
   const byTime = (a, b) => a.mins - b.mins || a.i - b.i
+  const span = (list) => {
+    list.sort(byTime)
+    const first = fmtTime(list[0].mins)
+    const last = fmtTime(list[list.length - 1].mins)
+    return list.length === 1 || first === last ? first : `${first}–${last}`
+  }
   const out = []
-  if (prev.length) out.push({ key: '昨日', char: '昨', label: '昨日', items: prev.sort(byTime).map((x) => x.item) })
+  if (prev.length) out.push({ key: '昨日', char: '昨', label: '昨日', range: span(prev), items: prev.map((x) => x.item) })
   buckets.forEach((list, idx) => {
     if (list.length) out.push({ key: BRANCHES[idx], char: BRANCHES[idx], label: `${BRANCHES[idx]}时`, range: branchRange(idx), items: list.sort(byTime).map((x) => x.item) })
   })
-  if (next.length) out.push({ key: '明日', char: '明', label: '明日', items: next.sort(byTime).map((x) => x.item) })
+  if (next.length) out.push({ key: '明日', char: '明', label: '明日', range: span(next), items: next.map((x) => x.item) })
   if (other.length) out.push({ key: '其他', char: '时', label: '其他', items: other.map((x) => x.item) })
   return out
 }

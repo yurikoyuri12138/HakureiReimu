@@ -426,49 +426,79 @@ a:hover { color: var(--accent-strong); text-decoration: underline; }
   grid-template-columns: minmax(96px, 1fr) 3fr;
   max-width: 1360px;
   margin: 0 auto;
+  --tl-row-h: 246px;
   animation: fadeUp 0.55s ease backwards;
 }
-.tl-axis { position: relative; }
 /* 时间轴主线：位于左侧 1/4 的右缘（即页面 25% 处） */
 .tl-line {
-  position: absolute; top: 0; bottom: 0; right: 0;
+  position: absolute; top: 8px; bottom: 0; right: 0;
   width: 2px;
-  background: linear-gradient(180deg, transparent, var(--accent) 5%, var(--accent) 95%, transparent);
+  background: linear-gradient(180deg, transparent, var(--accent) 4%, var(--accent) 96%, transparent);
   opacity: 0.75;
   border-radius: 2px;
 }
-/* 每段区间的首处分隔刻度线 */
+/* 左侧轴：每段区间高度与右侧缩略图行严格对齐 */
+.tl-axis {
+  position: relative;
+  display: flex; flex-direction: column;
+  padding-top: 8px;
+}
+.tl-seg {
+  position: relative;
+  height: var(--tl-row-h);
+  margin-bottom: 30px;
+  display: flex; flex-direction: column;
+  justify-content: center;
+  padding-left: 10px;
+}
+/* 每段区间首处的分隔刻度线 */
 .tl-mark {
-  position: absolute; left: 0; right: 0; height: 1px;
+  position: absolute; top: 0; left: 0; right: 0; height: 1px;
   background: var(--line);
   opacity: 0.55;
 }
-/* 每段区间首处（时间轴上的圆圈） */
+/* 每段区间首处的圆圈（精确压在时间轴主线上） */
 .tl-dot {
-  position: absolute; right: -7px;
+  position: absolute; top: 0; right: -6px;
   width: 14px; height: 14px; border-radius: 50%;
   background: var(--card-bg);
   border: 2.5px solid var(--accent-strong);
   box-shadow: 0 0 10px var(--tl-glow);
   transform: translateY(-50%);
 }
-/* 最左侧的地支（子丑寅卯…亥），小篆体，置于区间正中 */
+/* 最左侧的地支（昨/子丑寅卯…亥/明），小篆体，置于区间正中 */
 .tl-char {
-  position: absolute; left: 10px;
   font-family: 'FZXiaoZhuanTi', 'FangSong', 'STFangsong', serif;
   font-size: 102px; line-height: 1;
   color: var(--tl-char);
   text-shadow: 0 4px 18px var(--tl-glow);
-  transform: translateY(-50%);
   user-select: none;
 }
-.tl-body { padding: 0 4px 0 34px; min-width: 0; }
-.tl-group { margin-bottom: 36px; }
-.tl-group-head {
+/* 地支下方标注对应时间段 */
+.tl-time {
+  margin-top: 10px;
+  font-size: 15px; font-weight: 600; letter-spacing: 1px;
+  color: var(--tl-char);
+  opacity: 0.9;
+  white-space: nowrap;
+}
+.tl-body {
+  padding-top: 8px;
+  min-width: 0;
+  display: flex; flex-direction: column;
+}
+/* 每个时间段一行：标题 + 横向滚动缩略图行 */
+.tl-row {
+  height: var(--tl-row-h);
+  margin-bottom: 30px;
+  min-width: 0;
+  display: flex; flex-direction: column;
+}
+.tl-row-head {
+  flex: none;
+  min-height: 30px;
   display: flex; align-items: baseline; gap: 12px;
-  padding-bottom: 10px; margin-bottom: 14px;
-  border-bottom: 1px solid var(--line);
-  animation: fadeRight 0.45s ease both;
+  margin-bottom: 10px;
 }
 .tl-branch {
   font-family: 'FZXiaoZhuanTi', 'FangSong', 'STFangsong', serif;
@@ -477,56 +507,22 @@ a:hover { color: var(--accent-strong); text-decoration: underline; }
 }
 .tl-range { color: var(--muted); font-size: 14px; letter-spacing: 1px; }
 .tl-count { color: var(--muted2); font-size: 13px; margin-left: auto; white-space: nowrap; }
-.tl-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
+/* 横向滚动行（每行固定展示缩略图块，超出滚动） */
+.tl-scroll {
+  flex: 1; min-height: 0;
+  display: flex; gap: 14px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  overscroll-behavior-x: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent) var(--line);
 }
-@media (max-width: 1100px) { .tl-grid { grid-template-columns: repeat(2, 1fr); } }
+.tl-scroll::-webkit-scrollbar { height: 8px; }
+.tl-scroll::-webkit-scrollbar-track { background: var(--line); border-radius: 999px; }
+.tl-scroll::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 999px; }
+.tl-scroll .gcard { flex: 0 0 208px; width: 208px; }
 @media (max-width: 900px) {
-  .tl, .tl-group { display: none; }
-}
-
-/* ---------- 时辰轴缩略图块（每行最多三个） ---------- */
-.tl-card {
-  background: var(--card-bg);
-  border: 1px solid var(--card-border);
-  border-radius: 14px;
-  overflow: hidden;
-  cursor: pointer;
-  display: flex; flex-direction: column;
-  box-shadow: var(--shadow);
-  animation: fadeUp 0.55s ease backwards;
-  transition: transform 0.3s cubic-bezier(0.22, 0.8, 0.3, 1), box-shadow 0.3s, border-color 0.3s;
-}
-.tl-card:hover {
-  transform: translateY(-5px);
-  box-shadow: var(--shadow-hover);
-  border-color: var(--accent);
-}
-.tl-cover {
-  position: relative; aspect-ratio: 4 / 3;
-  background: linear-gradient(160deg, #f7f0f4, #efe8f4);
-  overflow: hidden;
-}
-[data-theme='dark'] .tl-cover { background: linear-gradient(160deg, #221c3c, #181230); }
-.tl-card:hover .car-img.on { transform: scale(1.05); }
-/* 多作品数量角标 */
-.tl-num {
-  position: absolute; top: 8px; right: 8px; z-index: 2;
-  font-size: 12px; border-radius: 999px; padding: 2px 9px;
-  background: rgba(20, 10, 25, 0.55); color: #fff;
-  backdrop-filter: blur(4px);
-}
-.tl-cardbar {
-  padding: 9px 12px 10px;
-  display: flex; flex-direction: column; gap: 2px;
-  border-top: 1px solid var(--line);
-}
-.tl-name { font-size: 14px; font-weight: 700; color: var(--text); letter-spacing: 0.5px; }
-.tl-credit {
-  font-size: 12px; color: var(--muted2);
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  .tl { display: none; }
 }
 
 /* ---------- 页尾 ---------- */
