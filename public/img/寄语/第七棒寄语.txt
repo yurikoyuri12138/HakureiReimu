@@ -1,0 +1,29 @@
+<title"[个人练习图包]灵梦厨的段位之How To Be Like Reimu v1"/title>
+本htbl图包选择了四个完整歌曲且不加倍速，全长度19分钟。
+整体过段要求：od8，ACC≥96%，不得使用EZ，HT，RD，AT，CM，单曲通过要求相同
+整体Over Clear要求：od8，ACC≥99.5%且分数≥975k，不得使用EZ，HT，RD，AT，CM
+整体难度：Reform 9 low，Rework SR：6.67
+
+下面是每个单曲的信息：
+Stage 1：ChordJack
+凛 - Eientewi set 08 A 〜 少女綺想曲
+单曲Over Clear要求：ACC≥99.8%且分数≥985k
+难度：Reform 9 mid/low，Rework SR：6.71
+
+Stage 2：Stream Technical
+森羅万象 - 革命のbullet
+单曲Over Clear要求：ACC≥99.6%且分数≥980k
+难度：Reform 9 low，Rework SR：6.67
+
+Stage 3：Speed
+Masayoshi Minoshima feat. nomico - Dreaming
+单曲Over Clear要求：ACC≥99.7%且分数≥980k
+难度：Reform 7 high，Rework SR：6.23
+
+Stage 4：JumpStream
+岸田教団＆THE明星ロケッツ - 少女綺想曲
+单曲Over Clear要求：ACC≥99.75%且分数≥985k
+难度：Reform 9 low，Rework SR：6.67
+
+这是第一次做这样的图包，中间还是有一些小意外的，上传osu官网后可能会做出一定的修改，但难度不会再变化。
+BG用图pid：29049609，84697224，99882324，72096026

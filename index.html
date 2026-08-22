@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" type="image/svg+xml" href="%BASE_URL%favicon.svg" />
+    <title>博丽灵梦接力创作活动</title>
+    <script>
+      // 首屏前同步应用主题，避免浅色闪屏，并提前声明深色 color-scheme
+      // （防止移动端 WebView“强制深色/自动反色”把白色星光反色成黑色）
+      // 自动主题（默认开启）：按系统时间选择首次展示的主题，6:00–17:59 浅色，其余深色
+      (function () {
+        function themeByTime() {
+          var h = new Date().getHours()
+          return h >= 6 && h < 18 ? 'light' : 'dark'
+        }
+        try {
+          var auto = localStorage.getItem('lm-auto-theme')
+          if (auto === 'off') {
+            var t = localStorage.getItem('lm-dark')
+            document.documentElement.setAttribute('data-theme', t === 'dark' ? 'dark' : 'light')
+          } else {
+            document.documentElement.setAttribute('data-theme', themeByTime())
+          }
+        } catch (e) {
+          document.documentElement.setAttribute('data-theme', themeByTime())
+        }
+      })()
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
