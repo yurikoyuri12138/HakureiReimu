@@ -527,19 +527,15 @@ a:hover { color: var(--accent-strong); text-decoration: underline; }
 }
 .tl-range { color: var(--muted); font-size: 14px; letter-spacing: 1px; }
 .tl-count { color: var(--muted2); font-size: 13px; margin-left: auto; white-space: nowrap; }
-/* 横向滚动行（每行固定展示缩略图块，超出滚动） */
+/* 横向滚动行（隐藏滚动条，滚动由自动滚动/滚轮操控） */
 .tl-scroll {
   flex: 1; min-height: 0;
   display: flex; gap: 14px;
   overflow-x: auto;
-  padding-bottom: 8px;
   overscroll-behavior-x: contain;
-  scrollbar-width: thin;
-  scrollbar-color: var(--accent) var(--line);
+  scrollbar-width: none;
 }
-.tl-scroll::-webkit-scrollbar { height: 8px; }
-.tl-scroll::-webkit-scrollbar-track { background: var(--line); border-radius: 999px; }
-.tl-scroll::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 999px; }
+.tl-scroll::-webkit-scrollbar { display: none; }
 .tl-scroll .gcard { flex: 0 0 208px; width: 208px; }
 @media (max-width: 900px) {
   .tl { display: none; }

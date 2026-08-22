@@ -9,6 +9,8 @@ function TlRow({ g, info, texts, paused, onOpen }) {
   const scrollRef = useRef(null)
   const [hover, setHover] = useState(false)
   const [visible, setVisible] = useState(false)
+  // 单份内容是否放不下视口：只有放不下的行才复制第二份用于无缝循环
+  const [overflow, setOverflow] = useState(false)
   // 一份内容的宽度（卡片 208px + 间距 14px），循环回绕的周期
   const period = g.items.length * (208 + 14)
   // 行可见时暂停卡片轮播，避免滚动过程中交叉淡入造成卡顿
@@ -25,13 +27,23 @@ function TlRow({ g, info, texts, paused, onOpen }) {
     return () => io.disconnect()
   }, [])
 
-  // 滚轮操控：无缝双向回绕；不可滚动（单份内容可完整显示）时放行页面滚动
+  // 测量单份内容是否溢出；只有溢出时才需要第二份副本
+  useEffect(() => {
+    const scroller = scrollRef.current
+    if (!scroller) return
+    const update = () => setOverflow(period > scroller.clientWidth + 4)
+    update()
+    window.addEventListener('resize', update)
+    return () => window.removeEventListener('resize', update)
+  }, [period])
+
+  // 滚轮操控：无缝双向回绕；无溢出内容时放行页面滚动
   useEffect(() => {
     const section = sectionRef.current
     const scroller = scrollRef.current
     if (!section || !scroller) return
     const onWheel = (e) => {
-      if (period <= scroller.clientWidth + 4) return
+      if (!overflow) return
       const delta = e.deltaY || e.deltaX
       if (!delta) return
       e.preventDefault()
@@ -42,13 +54,12 @@ function TlRow({ g, info, texts, paused, onOpen }) {
     }
     section.addEventListener('wheel', onWheel, { passive: false })
     return () => section.removeEventListener('wheel', onWheel)
-  }, [period])
+  }, [period, overflow])
 
-  // 自动滚动（懒加载：仅屏幕上可见的行滚动）：整数像素步进，到周期点无缝回绕
+  // 自动滚动（懒加载：仅屏幕上可见的溢出行滚动）：整数像素步进，到周期点无缝回绕
   useEffect(() => {
     const scroller = scrollRef.current
-    if (!scroller || paused || hover || !visible) return
-    if (period <= scroller.clientWidth + 4) return
+    if (!scroller || paused || hover || !visible || !overflow) return
     let raf = 0
     let pos = scroller.scrollLeft
     let last = performance.now()
@@ -62,7 +73,7 @@ function TlRow({ g, info, texts, paused, onOpen }) {
     }
     raf = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(raf)
-  }, [hover, paused, visible, period])
+  }, [hover, paused, visible, period, overflow])
 
   const cards = (pass) => g.items.map((item, idx) => (
     <WorkCard key={pass + '-' + item.infoId} index={idx} item={item} info={info} texts={texts} paused={cardPaused} onOpen={onOpen} />
@@ -85,7 +96,7 @@ function TlRow({ g, info, texts, paused, onOpen }) {
       </header>
       <div ref={scrollRef} className="tl-scroll">
         {cards(0)}
-        {cards(1)}
+        {overflow && cards(1)}
       </div>
     </section>
   )
