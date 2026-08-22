@@ -25,13 +25,13 @@ function TlRow({ g, info, texts, paused, onOpen }) {
     return () => io.disconnect()
   }, [])
 
-  // 滚轮操控：无缝双向回绕；无溢出内容（两份额都能显示）时放行页面滚动
+  // 滚轮操控：无缝双向回绕；不可滚动（单份内容可完整显示）时放行页面滚动
   useEffect(() => {
     const section = sectionRef.current
     const scroller = scrollRef.current
     if (!section || !scroller) return
     const onWheel = (e) => {
-      if (scroller.scrollWidth <= scroller.clientWidth) return
+      if (period <= scroller.clientWidth + 4) return
       const delta = e.deltaY || e.deltaX
       if (!delta) return
       e.preventDefault()
@@ -48,7 +48,7 @@ function TlRow({ g, info, texts, paused, onOpen }) {
   useEffect(() => {
     const scroller = scrollRef.current
     if (!scroller || paused || hover || !visible) return
-    if (scroller.scrollWidth <= scroller.clientWidth) return
+    if (period <= scroller.clientWidth + 4) return
     let raf = 0
     let pos = scroller.scrollLeft
     let last = performance.now()
